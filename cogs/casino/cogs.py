@@ -18,7 +18,7 @@ class Casino(commands.Cog):
 
     # -------------------- COINFLIP --------------------
     @casino.command(name="coinflip", description="Cara ou coroa")
-    @app_commands.checks.cooldown(30, 1200)
+    @app_commands.checks.cooldown(1, 2)
     async def coinflip(self, interaction: discord.Interaction, aposta: int, escolha: str):
         print("coinflip chamado")
         escolha = escolha.lower()
@@ -44,6 +44,14 @@ class Casino(commands.Cog):
             embedresult = embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
 
         await interaction.followup.send(embed=embedresult)
+
+    @coinflip.error
+    async def coinflip_error(self, interaction: discord.Interaction, error):
+        if isinstance(error, app_commands.errors.CommandOnCooldown):
+            await interaction.response.send_message(
+                f"⏳ Espere {round(error.retry_after)} segundos para usar novamente.",
+                ephemeral=True
+            )
 
 # -------------------- SETUP --------------------
 async def setup(bot):
