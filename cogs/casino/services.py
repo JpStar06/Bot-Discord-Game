@@ -1,11 +1,4 @@
-import discord
-import random
-from discord import app_commands
-from discord.ext import commands
 from database import get_connection
-import cogs
-
-
 
 def get_coins(self, user_id: int) -> int:
         pool = get_connection()
@@ -20,5 +13,3 @@ def add_coins(self, user_id: int, amount: int):
         pool = get_connection()
         with pool.acquire() as conn:
             conn.execute("UPDATE economy SET coins = coins + $1 WHERE user_id=$2", amount, user_id)
-
-def coinflip():
