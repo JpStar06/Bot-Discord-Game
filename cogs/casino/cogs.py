@@ -39,7 +39,7 @@ class Casino(commands.Cog):
             await self.add_coins(interaction.user.id, -aposta)
             embedresult=embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
 
-        await interaction.response.send_message(embed=embedresult)
+        await interaction.followup.send(embed=embedresult)
 
 # -------------------- SETUP --------------------
 async def setup(bot):
