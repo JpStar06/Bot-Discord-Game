@@ -81,7 +81,8 @@ async def init_db():
 
 
 # pegar conexão do pool
-async def get_connection():
-    if not pool:
+def get_connection():
+    global pool
+    if pool is None:
         raise ValueError("Pool não inicializado. Use init_db() primeiro.")
     return pool
