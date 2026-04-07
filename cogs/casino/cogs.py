@@ -3,15 +3,15 @@ import random
 from discord import app_commands
 from discord.ext import commands
 from database import get_connection
-from .services import get_coins, add_coins
-from .embeds import erro, ganhou, perdeu
+from . import services
+from . import embeds
 
 
 class Casino(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.get_coins = get_coins
-        self.add_coins = add_coins
+        self.get_coins = services.get_coins
+        self.add_coins = services.add_coins
         
 
     casino = app_commands.Group(name="casino", description="Jogos de aposta")
@@ -28,18 +28,18 @@ class Casino(commands.Cog):
 
         coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
-            await interaction.response.send_message(embed=erro("Você não tem coins suficientes."))
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
             return
         
         resultado = random.choice(["cara", "coroa"])
         if escolha == resultado:
             await self.add_coins(interaction.user.id, aposta)
-            embed=ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
+            embedresult=embeds.ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
         else:
             await self.add_coins(interaction.user.id, -aposta)
-            embed=perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
+            embedresult=embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embedresult)
 
 # -------------------- SETUP --------------------
 async def setup(bot):
