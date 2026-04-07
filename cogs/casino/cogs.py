@@ -19,6 +19,7 @@ class Casino(commands.Cog):
     @casino.command(name="coinflip", description="Cara ou coroa")
     @app_commands.checks.cooldown(30, 1200)
     async def coinflip(self, interaction: discord.Interaction, aposta: int, escolha: str):
+        print("coinflip chamado")
         escolha = escolha.lower()
         if escolha not in ["cara", "coroa"]:
             await interaction.response.send_message("Escolha `cara` ou `coroa`", ephemeral=True)
