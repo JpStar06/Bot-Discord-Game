@@ -31,3 +31,4 @@ async def add_coins(user_id: int, amount: int):
             """,
             user_id, amount
         )
+

@@ -7,3 +7,17 @@ def erro(msg: str):
         description=msg,
         color=discord.Color.red()
     )
+
+def ganhou(msg: str):
+    return discord.Embed(
+        title="GANHOU",
+        description=msg,
+        color=discord.Color.gold()
+    )
+
+def perdeu(msg: str):
+    return discord.Embed(
+        title="PERDEU!",
+        description=msg,
+        color=discord.Color.red()
+    )
