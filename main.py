@@ -25,17 +25,16 @@ async def main():
 
     async with bot:
         count = 0
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py") and file != "__init__.py":
-                cog_name = file[:-3]  # remove .py
-                cog = f"cogs.{cog_name}"
+        for folder in os.listdir("./cogs"):
+            path = f"./cogs/{folder}"
 
+            if os.path.isdir(path):
                 try:
-                    await bot.load_extension(cog)
-                    print(f"✅ Cog '{cog_name}' carregada com sucesso!")
+                    await bot.load_extension(f"cogs.{folder}.cogs")
+                    print(f"✅ Cog '{folder}' carregada com sucesso!")
                     count += 1
                 except Exception as e:
-                    print(f"❌ Erro ao carregar '{cog_name}': {e}")
+                    print(f"❌ Erro ao carregar '{folder}': {e}")
         print(f"\n🚀 Total de cogs carregadas: {count}")
 
         await bot.start(TOKEN)
