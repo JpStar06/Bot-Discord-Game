@@ -26,20 +26,24 @@ class Casino(commands.Cog):
             await interaction.response.send_message("Escolha `cara` ou `coroa`", ephemeral=True)
             return
 
+        await interaction.response.defer()
+
         coins = await self.get_coins(interaction.user.id)
+
         if aposta > coins:
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            await interaction.followup.send(embed=embeds.erro("Você não tem coins suficientes."))
             return
-        
+
         resultado = random.choice(["cara", "coroa"])
+
         if escolha == resultado:
             await self.add_coins(interaction.user.id, aposta)
-            embedresult=embeds.ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
+            embedresult = embeds.ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
         else:
             await self.add_coins(interaction.user.id, -aposta)
-            embedresult=embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
+            embedresult = embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
 
-        await interaction.response.send_message(embed=embedresult)
+        await interaction.followup.send(embed=embedresult)
 
 # -------------------- SETUP --------------------
 async def setup(bot):
