@@ -2,42 +2,57 @@ import discord
 from discord.ext import commands
 import asyncio
 import os
-import dotenv
+from dotenv import load_dotenv
 from database import init_db
 
-dotenv.load_dotenv()
+load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
 
+class Bot(commands.Bot):
+    async def setup_hook(self):
+        # 🔹 Inicializa banco antes de tudo
+        await init_db()
 
-@bot.event
-async def on_ready():
-    print(f"Logado como {bot.user}")
-    await bot.tree.sync()
-
-
-async def main():
-    await init_db()
-
-    async with bot:
+        # 🔹 Carrega cogs
         count = 0
         for folder in os.listdir("./cogs"):
             path = f"./cogs/{folder}"
 
             if os.path.isdir(path):
                 try:
-                    await bot.load_extension(f"cogs.{folder}.cogs")
-                    print(f"✅ Cog '{folder}' carregada com sucesso!")
+                    await self.load_extension(f"cogs.{folder}.cogs")
+                    print(f"✅ Cog '{folder}' carregada!")
                     count += 1
                 except Exception as e:
                     print(f"❌ Erro ao carregar '{folder}': {e}")
-        print(f"\n🚀 Total de cogs carregadas: {count}")
 
+        print(f"\n🚀 Total de cogs: {count}")
+
+        # 🔹 Sync global dos comandos
+        try:
+            synced = await self.tree.sync()
+            print(f"🌍 Slash commands sincronizados: {len(synced)}")
+        except Exception as e:
+            print(f"❌ Erro ao sincronizar comandos: {e}")
+
+
+bot = Bot(command_prefix="!", intents=intents)
+
+
+@bot.event
+async def on_ready():
+    print(f"🤖 Logado como {bot.user} (ID: {bot.user.id})")
+    print("------")
+
+
+async def main():
+    async with bot:
         await bot.start(TOKEN)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

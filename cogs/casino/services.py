@@ -23,6 +23,11 @@ async def add_coins(user_id: int, amount: int):
 
     async with pool.acquire() as conn:
         await conn.execute(
-            "UPDATE economy SET coins = coins + $1 WHERE user_id=$2",
-            amount, user_id
+            """
+            INSERT INTO economy (user_id, coins)
+            VALUES ($1, $2)
+            ON CONFLICT (user_id)
+            DO UPDATE SET coins = economy.coins + $2
+            """,
+            user_id, amount
         )
