@@ -12,6 +12,7 @@ class Casino(commands.Cog):
         self.bot = bot
         self.get_coins = services.get_coins
         self.add_coins = services.add_coins
+        
 
     casino = app_commands.Group(name="casino", description="Jogos de aposta")
 
@@ -20,14 +21,15 @@ class Casino(commands.Cog):
     @app_commands.checks.cooldown(30, 1200)
     async def coinflip(self, interaction: discord.Interaction, aposta: int, escolha: str):
         print("coinflip chamado")
+        await interaction.response.defer()
         escolha = escolha.lower()
         if escolha not in ["cara", "coroa"]:
-            await interaction.response.send_message("Escolha `cara` ou `coroa`", ephemeral=True)
+            await interaction.followup.send("Escolha `cara` ou `coroa`", ephemeral=True)
             return
 
         coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            await interaction.followup.send(embed=embeds.erro("Você não tem coins suficientes."))
             return
         
         resultado = random.choice(["cara", "coroa"])
