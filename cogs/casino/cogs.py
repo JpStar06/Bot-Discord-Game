@@ -3,8 +3,8 @@ import random
 from discord import app_commands
 from discord.ext import commands
 from database import get_connection
-from casino.services import get_coins, add_coins
-from casino.embeds import erro, ganhou, perdeu
+from .services import get_coins, add_coins
+from .embeds import erro, ganhou, perdeu
 
 
 class Casino(commands.Cog):
