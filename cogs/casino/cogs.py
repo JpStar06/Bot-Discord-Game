@@ -3,15 +3,15 @@ import random
 from discord import app_commands
 from discord.ext import commands
 from database import get_connection
-from .services import get_coins, add_coins
+from . import services
 from . import embeds
 
 
 class Casino(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.get_coins = get_coins
-        self.add_coins = add_coins
+        self.get_coins = services.get_coins
+        self.add_coins = services.add_coins
 
     casino = app_commands.Group(name="casino", description="Jogos de aposta")
 
