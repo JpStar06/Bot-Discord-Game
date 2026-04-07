@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from database import get_connection
 from . import services
-from .embeds import erro, ganhou, perdeu
+from . import embeds
 
 
 class Casino(commands.Cog):
@@ -28,18 +28,18 @@ class Casino(commands.Cog):
 
         coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
-            await interaction.response.send_message(embed=erro("Você não tem coins suficientes."))
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
             return
         
         resultado = random.choice(["cara", "coroa"])
         if escolha == resultado:
             await self.add_coins(interaction.user.id, aposta)
-            embedresult=ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
+            embedresult=embeds.ganhou(f"🪙 **{resultado}**\nVocê ganhou `{aposta}` coins!")
         else:
             await self.add_coins(interaction.user.id, -aposta)
-            embedresult=perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
+            embedresult=embeds.perdeu(f"🪙 **{resultado}**\nVocê perdeu `{aposta}` coins.")
 
-        await interaction.followup.send(embed=embedresult)
+        await interaction.response.send_message(embed=embedresult)
 
 # -------------------- SETUP --------------------
 async def setup(bot):
