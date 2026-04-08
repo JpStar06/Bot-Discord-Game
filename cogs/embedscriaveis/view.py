@@ -46,8 +46,9 @@ class EmbedBuilderView(discord.ui.View):
     @discord.ui.button(label="💾 Salvar", style=discord.ButtonStyle.green)
     async def salvar(self, interaction: discord.Interaction, button: discord.ui.Button):
 
-        embed_id = await services.criarembed(
+        await services.editar_embed(
             interaction.guild.id,
+            self.embed_id,
             self.title,
             self.description,
             self.color,
@@ -55,6 +56,6 @@ class EmbedBuilderView(discord.ui.View):
         )
 
         await interaction.response.send_message(
-            f"✅ Embed salvo com ID `{embed_id}`",
+            f"✏️ Embed `{self.embed_id}` atualizado!",
             ephemeral=True
         )

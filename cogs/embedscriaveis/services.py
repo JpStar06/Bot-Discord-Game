@@ -64,3 +64,17 @@ async def deletar_embed(guild_id: int, embed_id: int):
 
         # result vem tipo: "DELETE 1" ou "DELETE 0"
         return result.endswith("1")
+    
+async def buscar_embed(guild_id: int, embed_id: int):
+    pool = get_connection()
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT title, description, color, image FROM embeds WHERE id=$1 AND guild_id=$2",
+            embed_id, guild_id
+        )
+
+        if not row:
+            return None
+
+        return dict(row)
