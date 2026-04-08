@@ -44,5 +44,19 @@ class Comandos(commands.Cog):
 
         await interaction.response.send_message("Embed atualizado:", embed=embed)
 
+
+    @embed.command(name="listar", description="Lista os embeds.")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def listarembeds(self, interaction: discord.Interaction):
+        embeds_list = await services.listarembeds(interaction.guild.id)
+
+        if not embeds_list:
+            await interaction.response.send_message("Nenhum embed criado.",ephemeral=True)
+            return
+
+        lista = "\n".join([f"ID `{e['id']}` - {e['title']}" for e in embeds_list])
+
+        await interaction.response.send_message(lista)
+
 async def setup(bot):
     await bot.add_cog(Comandos(bot))

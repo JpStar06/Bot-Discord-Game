@@ -41,3 +41,14 @@ async def editar_embed(guild_id: int, embed_id: int, novo_titulo=None, nova_desc
             "color": color,
             "image": image
         }
+    
+async def listarembeds(guild_id: int):
+    pool = get_connection()
+
+    async with pool.acquire() as conn:
+        embeds = await conn.fetch(
+            "SELECT id, title FROM embeds WHERE guild_id=$1",
+            guild_id
+        )
+
+    return embeds
