@@ -1,4 +1,5 @@
 from database import get_connection
+import random
 
 async def get_coins(user_id: int) -> int:
     pool = get_connection()
@@ -32,3 +33,15 @@ async def add_coins(user_id: int, amount: int):
             user_id, amount
         )
 
+def spin_slots(aposta: int):
+    EMOJIS = ["🍒", "🍋", "🍉", "⭐", "💎", "💶", "🪙"]
+    r1 = random.choice(EMOJIS)
+    r2 = random.choice(EMOJIS)
+    r3 = random.choice(EMOJIS)
+
+    if r1 == r2 == r3:
+        return (r1, r2, r3), aposta * 6, "jackpot"
+    elif r1 == r2 or r2 == r3 or r1 == r3:
+        return (r1, r2, r3), aposta * 3, "win"
+    else:
+        return (r1, r2, r3), -aposta, "lose"
