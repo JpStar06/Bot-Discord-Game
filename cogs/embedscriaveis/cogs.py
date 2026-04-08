@@ -32,20 +32,21 @@ class Comandos(commands.Cog):
         embeds_list = await services.listarembeds(interaction.guild.id)
 
         if not embeds_list:
-            await interaction.response.send_message("Nenhum embed criado.",ephemeral=True)
+            await interaction.response.send_message(embed=embeds.erro("Nenhum embed criado."),ephemeral=True)
             return
 
         lista = "\n".join([f"ID `{e['id']}` - {e['title']}" for e in embeds_list])
 
-        await interaction.response.send_message(lista)
+        await interaction.response.send_message(embed=embeds.lista(lista))
 
     @embed.command(name="editar", description="Editar embed")
+    @app_commands.checks.has_permissions(administrator=True)
     async def builder(self, interaction: discord.Interaction, id: int):
 
         data = await services.buscar_embed(interaction.guild.id, id)
 
         if not data:
-            await interaction.response.send_message("Embed não encontrado.", ephemeral=True)
+            await interaction.response.send_message(embed=embeds.erro("Embed não encontrado."), ephemeral=True)
             return
 
         view = EmbedBuilderView(interaction.user)
@@ -67,7 +68,7 @@ class Comandos(commands.Cog):
         data = await services.buscar_embed(interaction.guild.id, id)
 
         if not data:
-            await interaction.response.send_message("Embed não encontrado.", ephemeral=True)
+            await interaction.response.send_message(embed=embeds.erro("Embed não encontrado."), ephemeral=True)
             return
 
         embed = discord.Embed(title=data["title"], description=data["description"], color=data["color"])
@@ -77,7 +78,7 @@ class Comandos(commands.Cog):
 
         await canal.send(embed=embed)
 
-        await interaction.response.send_message(f"✅ Embed `{id}` enviado para {canal.mention}!")
+        await interaction.response.send_message(embed=embeds.acerto(f"✅ Embed `{id}` enviado para {canal.mention}!"))
 
 async def setup(bot):
     await bot.add_cog(Comandos(bot))
