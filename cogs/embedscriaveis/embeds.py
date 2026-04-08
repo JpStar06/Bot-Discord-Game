@@ -3,6 +3,6 @@ import discord
 def padrao():
     return discord.Embed(
         title="Título do Embed",
-        description="Descrição padrão",
+        description="use /embed editar para editar os embeds",
         color=discord.Color.blue()
     )

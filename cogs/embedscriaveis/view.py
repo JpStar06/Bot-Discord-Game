@@ -13,11 +13,7 @@ class EmbedBuilderView(discord.ui.View):
         self.image = None
 
     def build_embed(self):
-        embed = discord.Embed(
-            title=self.title,
-            description=self.description,
-            color=self.color
-        )
+        embed = discord.Embed(title=self.title, description=self.description, color=self.color)
         if self.image:
             embed.set_image(url=self.image)
         return embed
@@ -46,16 +42,6 @@ class EmbedBuilderView(discord.ui.View):
     @discord.ui.button(label="💾 Salvar", style=discord.ButtonStyle.green)
     async def salvar(self, interaction: discord.Interaction, button: discord.ui.Button):
 
-        await services.editar_embed(
-            interaction.guild.id,
-            self.embed_id,
-            self.title,
-            self.description,
-            self.color,
-            self.image
-        )
+        await services.editar_embed(interaction.guild.id, self.embed_id, self.title, self.description, self.color, self.image)
 
-        await interaction.response.send_message(
-            f"✏️ Embed `{self.embed_id}` atualizado!",
-            ephemeral=True
-        )
+        await interaction.response.send_message(f"✏️ Embed `{self.embed_id}` atualizado!", ephemeral=True)
