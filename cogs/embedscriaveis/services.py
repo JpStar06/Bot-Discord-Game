@@ -52,3 +52,15 @@ async def listarembeds(guild_id: int):
         )
 
     return embeds
+
+async def deletar_embed(guild_id: int, embed_id: int):
+    pool = get_connection()
+
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM embeds WHERE id=$1 AND guild_id=$2",
+            embed_id, guild_id
+        )
+
+        # result vem tipo: "DELETE 1" ou "DELETE 0"
+        return result.endswith("1")

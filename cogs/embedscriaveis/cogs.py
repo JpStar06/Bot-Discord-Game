@@ -58,5 +58,16 @@ class Comandos(commands.Cog):
 
         await interaction.response.send_message(lista)
 
+    @embed.command(name="deletar", description="Deleta um embed.")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def deletarembed(self, interaction: discord.Interaction, id: int):
+
+        success = await services.deletar_embed(interaction.guild.id, id)
+
+        if not success:
+            await interaction.response.send_message(f"Embed `{id}` não encontrado.",ephemeral=True)
+            return
+
+        await interaction.response.send_message(f"Embed `{id}` deletado com sucesso.")
 async def setup(bot):
     await bot.add_cog(Comandos(bot))
