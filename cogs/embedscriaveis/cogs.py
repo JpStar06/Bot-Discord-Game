@@ -5,6 +5,7 @@ import datetime
 from database import get_connection
 from . import embeds
 from . import services
+from .view import EmbedBuilderView
 
 class Comandos(commands.Cog):
     def __init__(self, bot):
@@ -69,5 +70,16 @@ class Comandos(commands.Cog):
             return
 
         await interaction.response.send_message(f"Embed `{id}` deletado com sucesso.")
+    
+    @embed.command(name="builder", description="Criar embed interativo")
+    async def builder(self, interaction: discord.Interaction):
+
+        view = EmbedBuilderView(interaction.user)
+
+        await interaction.response.send_message(
+            embed=view.build_embed(),
+            view=view
+        )
+
 async def setup(bot):
     await bot.add_cog(Comandos(bot))
