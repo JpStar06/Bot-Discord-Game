@@ -6,7 +6,6 @@ from database import get_connection
 from . import services
 from . import embeds
 
-
 class Casino(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -19,16 +18,20 @@ class Casino(commands.Cog):
     @casino.command(name="coinflip", description="Cara ou coroa")
     @app_commands.checks.cooldown(1, 2)
     async def coinflip(self, interaction: discord.Interaction, aposta: int, escolha: str):
-        print("coinflip chamado")
         escolha = escolha.lower()
+        
         if escolha not in ["cara", "coroa"]:
-            await interaction.response.send_message(embed=embeds.erro("Escolha `cara` ou `coroa`", ephemeral=True))
+            await interaction.response.send_message(embed=embeds.erro("Escolha `cara` ou `coroa`"), ephemeral=True)
             return
 
         coins = await self.get_coins(interaction.user.id)
 
         if aposta > coins:
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
+            return
+        
+        if aposta <= 0:
+            await interaction.response.send_message(embed=embeds.erro("Você não pode usar valor igual ou menor que 0."), ephemeral=True)
             return
 
         resultado = random.choice(["cara", "coroa"])
@@ -45,16 +48,27 @@ class Casino(commands.Cog):
     @coinflip.error
     async def coinflip_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.CommandOnCooldown):
-            await interaction.response.send_message(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente.",
-                ephemeral=True))
-
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
     #-----------dices-----------------------
     @casino.command(name="dice", description="Jogue dados")
     @app_commands.checks.cooldown(1, 6)
     async def dice(self, interaction: discord.Interaction, aposta: int):
         coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
+            return
+        
+        if aposta <= 0:
+            await interaction.response.send_message(embed=embeds.erro("Você não pode usar valor igual ou menor que 0."), ephemeral=True)
             return
 
         player = random.randint(1, 6)
@@ -67,7 +81,6 @@ class Casino(commands.Cog):
             await self.add_coins(interaction.user.id, -aposta)
             embedresult = embeds.perdeu(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nVocê perdeu `{aposta}` coins.")
         else:
-            await self.add_coins(interaction.user.id, aposta)
             embedresult = embeds.ganhou(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nEmpate!")
 
         await interaction.response.send_message(embed=embedresult)
@@ -75,15 +88,28 @@ class Casino(commands.Cog):
     @dice.error
     async def dice_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.CommandOnCooldown):
-            await interaction.response.send_message(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente.",
-                ephemeral=True))
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+
 #---------------------SLOTS----------------------
     @casino.command(name="slots", description="Caça-níquel")
     @app_commands.checks.cooldown(1, 6)
     async def slots(self, interaction: discord.Interaction, aposta: int):
         coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
+            return
+        
+        if aposta <= 0:
+            await interaction.response.send_message(embed=embeds.erro("Você não pode usar valor igual ou menor que 0."), ephemeral=True)
             return
         
         (r1, r2, r3), ganho, tipo = services.spin_slots(aposta)
@@ -102,8 +128,17 @@ class Casino(commands.Cog):
     @slots.error
     async def slots_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.CommandOnCooldown):
-            await interaction.response.send_message(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente.",
-                ephemeral=True))
-# -------------------- SETUP --------------------
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+
+#-------------SETUP---------------
 async def setup(bot):
     await bot.add_cog(Casino(bot))
