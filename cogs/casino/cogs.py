@@ -79,10 +79,10 @@ class Casino(commands.Cog):
             await self.add_coins(interaction.user.id, aposta)
             embedresult = embeds.ganhou(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nVocê ganhou `{aposta}` coins!")
         elif player < bot_roll:
-            await self.add_coins(interaction.user.id, aposta)
+            await self.add_coins(interaction.user.id, -aposta)
             embedresult = embeds.perdeu(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nVocê perdeu `{aposta}` coins.")
         else:
-            await self.add_coins(interaction.user.id, -aposta)
+            await self.add_coins(interaction.user.id, aposta)
             embedresult = embeds.ganhou(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nEmpate!")
 
         await interaction.response.send_message(embed=embedresult)
