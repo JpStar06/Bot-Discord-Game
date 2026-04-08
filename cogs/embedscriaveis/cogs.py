@@ -45,10 +45,7 @@ class Comandos(commands.Cog):
         data = await services.buscar_embed(interaction.guild.id, id)
 
         if not data:
-            await interaction.response.send_message(
-                "Embed não encontrado.",
-                ephemeral=True
-            )
+            await interaction.response.send_message("Embed não encontrado.", ephemeral=True)
             return
 
         view = EmbedBuilderView(interaction.user)
@@ -61,10 +58,26 @@ class Comandos(commands.Cog):
 
         view.embed_id = id  # 🔥 obrigatório
 
-        await interaction.response.send_message(
-            embed=view.build_embed(),
-            view=view
-        )
+        await interaction.response.send_message(embed=view.build_embed(), view=view)
+
+    @embed.command(name="enviar", description="Envia um embed")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def enviar_embed(self, interaction: discord.Interaction, id: int, canal: discord.TextChannel):
+
+        data = await services.buscar_embed(interaction.guild.id, id)
+
+        if not data:
+            await interaction.response.send_message("Embed não encontrado.", ephemeral=True)
+            return
+
+        embed = discord.Embed(title=data["title"], description=data["description"], color=data["color"])
+
+        if data["image"]:
+            embed.set_image(url=data["image"])
+
+        await canal.send(embed=embed)
+
+        await interaction.response.send_message(f"✅ Embed `{id}` enviado para {canal.mention}!")
 
 async def setup(bot):
     await bot.add_cog(Comandos(bot))
