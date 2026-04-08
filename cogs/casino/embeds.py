@@ -12,7 +12,7 @@ def ganhou(msg: str):
     return discord.Embed(
         title="GANHOU",
         description=msg,
-        color=discord.Color.gold()
+        color=discord.Color.green()
     )
 
 def perdeu(msg: str):
