@@ -63,6 +63,29 @@ class Casino(commands.Cog):
                 ephemeral=True
             )
 
+    #-----------dices-----------------------
+    @casino.command(name="dice", description="Jogue dados")
+    @app_commands.checks.cooldown(30, 1200)
+    async def dice(self, interaction: discord.Interaction, aposta: int):
+        coins = await self.get_coins(interaction.user.id)
+        if aposta > coins:
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."))
+            return
+
+        player = random.randint(1, 6)
+        bot_roll = random.randint(1, 6)
+
+        if player > bot_roll:
+            await self.add_coins(interaction.user.id, aposta)
+            embedresult = embeds.ganhou(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nVocê ganhou `{aposta}` coins!")
+        elif player < bot_roll:
+            await self.add_coins(interaction.user.id, aposta)
+            embedresult = embeds.perdeu(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nVocê perdeu `{aposta}` coins.")
+        else:
+            await self.add_coins(interaction.user.id, -aposta)
+            embedresult = embeds.ganhou(f"🎲 Você: {player}\n🎲 Bot: {bot_roll}\nEmpate!")
+
+        await interaction.response.send_message(embed=embedresult)
 # -------------------- SETUP --------------------
 async def setup(bot):
     await bot.add_cog(Casino(bot))
