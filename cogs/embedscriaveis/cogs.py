@@ -25,5 +25,24 @@ class Comandos(commands.Cog):
 
         await interaction.response.send_message(f"Embed criado com ID `{embed_id}`", embed=embeds.padrao())
 
+    #----------------EDITAR EMBED---------------------------
+    @embed.command(name="editar", description="Edita um embed.")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def editarembed(self, interaction: discord.Interaction, id: int, novo_titulo: str = None, novo_descricao: str = None, nova_cor: int = None, imagem_url: str = None):
+
+        data = await services.editar_embed(interaction.guild.id, id, novo_titulo, novo_descricao, nova_cor, imagem_url)
+
+        if not data:
+            await interaction.response.send_message("Embed não encontrado.", ephemeral=True)
+            return
+
+        embed = discord.Embed(
+            title=data["title"], description=data["description"], color=data["color"])
+
+        if data["image"]:
+            embed.set_image(url=data["image"])
+
+        await interaction.response.send_message("Embed atualizado:", embed=embed)
+
 async def setup(bot):
     await bot.add_cog(Comandos(bot))
