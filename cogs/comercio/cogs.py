@@ -58,8 +58,22 @@ class Economia(commands.Cog):
 
     @box.command(name="abrir", description="Abrir lootbox")
     async def open_box(self, interaction: discord.Interaction):
-        user = await services.open_box(interaction.user.id)
-        await interaction.response.send_message(embed=embeds.ganhou(f"Você abriu uma lootbox de raridade **{user['rarity']}** e ganhou:\n **{user['rewards']} coins**"))
+        data = await services.open_box(interaction.user.id)
+
+        if not data:
+            await interaction.response.send_message(
+                embed=embeds.erro("📦 Você não tem lootboxes."),
+                ephemeral=True
+            )
+            return
+
+        await interaction.response.send_message(
+            embed=embeds.ganhou(
+                f"📦 Você abriu uma lootbox!\n"
+                f"{data['rarity']}\n"
+                f"💰 Você ganhou **{data['reward']} coins**"
+            )
+        )
 
 async def setup(bot):
     await bot.add_cog(Economia(bot))
