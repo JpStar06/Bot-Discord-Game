@@ -37,6 +37,12 @@ class Economia(commands.Cog):
                 f"🎁 Daily coletado!\n+{user['reward']} coins\n🔥 Streak: {user['streak']}"
             )
         )
-        
+    
+    @economia.command(name="trabalho", description="Trabalhe para ganhar coins.")
+    @app_commands.checks.cooldown(1, 10)
+    async def work(self, interaction: discord.Interaction):
+        user = await services.work(interaction.user.id)
+        await interaction.response.send_message(embed=embeds.work(f"Você trabalhou como **{user['job']}** por 1 hora\n💰 Recebeu **{user['reward']} coins**"))
+
 async def setup(bot):
     await bot.add_cog(Economia(bot))

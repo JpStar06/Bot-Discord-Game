@@ -20,3 +20,10 @@ def erro(msg: str):
         description=msg,
         color=discord.Color.red()
     )
+
+def work(msg: str):
+    return discord.Embed(
+        title="WORK",
+        description=msg,
+        color=discord.Color.yellow()
+    )
