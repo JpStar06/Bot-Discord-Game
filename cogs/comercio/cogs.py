@@ -9,7 +9,7 @@ class Economia(commands.Cog):
         self.bot = bot
 
     economia = app_commands.Group(name="eco", description="Sistema de economia.")
-
+    box = app_commands.Group(name="box", description= "Sistema de boxes")
     @economia.command(name="carteira", description="Mostra sua carteira")
     async def coins(self, interaction: discord.Interaction):
         user = await services.get_user(interaction.user.id)
@@ -27,42 +27,34 @@ class Economia(commands.Cog):
         user = await services.daily(interaction.user.id)
 
         if user["already_claimed"]:
-            await interaction.response.send_message(
-                embed=embeds.erro("⏳ Você já pegou o daily hoje.")
-            )
+            await interaction.response.send_message(embed=embeds.erro("⏳ Você já pegou o daily hoje."))
             return
 
         await interaction.response.send_message(
-            embed=embeds.daily(
-                f"🎁 Daily coletado!\n+{user['reward']} coins\n🔥 Streak: {user['streak']}"
-            )
-        )
+            embed=embeds.daily(f"🎁 Daily coletado!\n+{user['reward']} coins\n🔥 Streak: {user['streak']}"))
     
     @economia.command(name="work", description="Trabalhe para ganhar coins.")
     @app_commands.checks.cooldown(1, 10)
     async def work(self, interaction: discord.Interaction):
         user = await services.work(interaction.user.id)
 
-        await interaction.response.send_message(
-            embed=embeds.work(
-                f"Você trabalhou como **{user['job']}** por 1 hora\n"
-                f"💰 Recebeu **{user['reward']} coins**"
-            )
-        )
+        await interaction.response.send_message(embed=embeds.work(f"Você trabalhou como **{user['job']}** por 1 hora\n💰 Recebeu **{user['reward']} coins**"))
+    
     @work.error
     async def work_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.CommandOnCooldown):
             if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
-                    ephemeral=True
-                )
+                await interaction.followup.send(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."), ephemeral=True)
             else:
-                await interaction.response.send_message(
-                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
-                    ephemeral=True
-                )
+                await interaction.response.send_message(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."), ephemeral=True)
 
+    @box.command(name="comprar", description="Comprar lootbox")
+    async def buy_box(self, interaction: discord.Interaction):
+        user = await services.buy_box(interaction.user.id)
+        if user['success'] == False:
+            await interaction.response.send_message(embed=embeds.erro(f"Você não pode comprar essa box.\n ainda falta {user['faltante']} coins para finalizar a compra."))
+        else:
+            await interaction.response.send_message(embed=embeds.compra("📦 Você comprou uma lootbox!"))
 
 async def setup(bot):
     await bot.add_cog(Economia(bot))

@@ -27,3 +27,10 @@ def work(msg: str):
         description=msg,
         color=discord.Color.yellow()
     )
+
+def compra(msg: str):
+    return discord.Embed(
+        title="COMPRA",
+        description=msg,
+        color=discord.Color.green()
+    )

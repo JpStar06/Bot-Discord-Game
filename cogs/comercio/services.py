@@ -116,6 +116,28 @@ async def open_box(user_id: int):
         "rarity": rarity
     }
 
+async def buy_box(user_id: int):
+    pool = get_connection()
+    user = await get_user(user_id)
+
+    price = 500
+
+    if user["coins"] < price:
+        return {
+            "success": False,
+            "faltante": price - user["coins"]
+        }
+
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE economy SET coins = coins - $1, boxes = boxes + 1 WHERE user_id=$2",
+            price, user_id
+        )
+
+    return {
+        "success": True
+    }
+
 
 # -------------------- PAY --------------------
 
