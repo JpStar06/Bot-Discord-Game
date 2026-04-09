@@ -25,12 +25,18 @@ class Economia(commands.Cog):
     @economia.command(name="diario", description="pegue coins diárias")
     async def daily(self, interaction: discord.Interaction):
         user = await services.daily(interaction.user.id)
-        already = user['already_claimed']
-        
-        if already == False:
-            await interaction.response.send_message(embed=embeds.daily(f"🎁 Daily coletado!\n+{user['reward']} coins\n🔥 Streak: {user['streak']}"))
-        else:
-            await interaction.response.send_message(embed=embeds.erro("⏳ Você já pegou o daily hoje."))
 
+        if user["already_claimed"]:
+            await interaction.response.send_message(
+                embed=embeds.erro("⏳ Você já pegou o daily hoje.")
+            )
+            return
+
+        await interaction.response.send_message(
+            embed=embeds.daily(
+                f"🎁 Daily coletado!\n+{user['reward']} coins\n🔥 Streak: {user['streak']}"
+            )
+        )
+        
 async def setup(bot):
     await bot.add_cog(Economia(bot))
