@@ -78,7 +78,10 @@ async def work(user_id: int):
 
     await add_coins(user_id, reward)
 
-    return job, reward
+    return {
+        "job": job,
+        "reward": reward
+    }
 
 
 # -------------------- LOOTBOX --------------------
