@@ -48,6 +48,17 @@ class Economia(commands.Cog):
             else:
                 await interaction.response.send_message(embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."), ephemeral=True)
 
+    @economia.command(name="pay", description="Envie coins para outro usuário")
+    async def pay(self, interaction: discord.Interaction, usuario: discord.Member, quantia: int):
+        user = await services.transfer(interaction.user.id)
+        if user["error"] == "invalid_amount":
+            await interaction.response.send_message(embed=embeds.erro("o valor minimo de transação é de 100 coins."))
+        elif user["error"] == "no_money":
+            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficiente para essa transação."))
+        else:
+            await interaction.response.send_message(embed=embeds.pay(f"Você enviou {user['enviado']} coins para {user['target_id']}"))
+        
+
     @box.command(name="comprar", description="Comprar lootbox")
     async def buy_box(self, interaction: discord.Interaction):
         user = await services.buy_box(interaction.user.id)
@@ -74,6 +85,7 @@ class Economia(commands.Cog):
                 f"💰 Você ganhou **{data['reward']} coins**"
             )
         )
+    
 
 async def setup(bot):
     await bot.add_cog(Economia(bot))

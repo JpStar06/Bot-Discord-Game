@@ -3,7 +3,6 @@ import datetime
 import random
 
 # -------------------- USER --------------------
-
 async def get_user(user_id: int):
     pool = get_connection()
 
@@ -27,10 +26,7 @@ async def get_user(user_id: int):
 
         return dict(user)
         
-
-
 # -------------------- COINS --------------------
-
 async def add_coins(user_id: int, amount: int):
     pool = get_connection()
 
@@ -40,9 +36,7 @@ async def add_coins(user_id: int, amount: int):
             amount, user_id
         )
 
-
 # -------------------- DAILY --------------------
-
 async def daily(user_id: int):
     pool = get_connection()
     user = await get_user(user_id)
@@ -68,9 +62,7 @@ async def daily(user_id: int):
         "already_claimed": False
     }
 
-
 # -------------------- WORK --------------------
-
 async def work(user_id: int):
     jobs = ["programador", "minerador", "chef", "hacker", "músico"]
     job = random.choice(jobs)
@@ -82,7 +74,6 @@ async def work(user_id: int):
         "job": job,
         "reward": reward
     }
-
 
 # -------------------- LOOTBOX --------------------
 
@@ -138,21 +129,19 @@ async def buy_box(user_id: int):
         "success": True
     }
 
-
 # -------------------- PAY --------------------
-
 async def transfer(sender_id: int, target_id: int, amount: int):
     pool = get_connection()
 
     sender = await get_user(sender_id)
 
-    if amount <= 0:
+    if amount <= 100:
         return {"error": "invalid_amount"}
 
     if amount > sender["coins"]:
         return {"error": "no_money"}
 
-    taxa = int(amount * 0.05)
+    taxa = int(amount * 0.02)
     recebido = amount - taxa
 
     async with pool.acquire() as conn:
@@ -174,5 +163,6 @@ async def transfer(sender_id: int, target_id: int, amount: int):
     return {
         "enviado": amount,
         "recebido": recebido,
-        "taxa": taxa
+        "taxa": taxa,
+        "target_id": target_id
     }

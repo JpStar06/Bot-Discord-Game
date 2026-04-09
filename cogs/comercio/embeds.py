@@ -41,3 +41,10 @@ def ganhou(msg: str):
         description=msg,
         color=discord.Color.green()
     )
+
+def pay(msg: str):
+    return discord.Embed(
+        title="TRANSFERÊNCIA",
+        description=msg,
+        color=discord.Color.yellow()
+    )
