@@ -24,7 +24,7 @@ class Economia(commands.Cog):
     
     @economia.command(name="diario", description="pegue coins diárias")
     async def daily(self, interaction: discord.Interaction):
-        user = services.daily(interaction.user.id)
+        user = await services.daily(interaction.user.id)
         already = user['already_claimed']
         
         if already == False:
