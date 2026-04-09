@@ -135,7 +135,7 @@ async def transfer(sender_id: int, target_id: int, amount: int):
 
     sender = await get_user(sender_id)
 
-    if amount <= 100:
+    if amount <= 99:
         return {"error": "invalid_amount"}
 
     if amount > sender["coins"]:
