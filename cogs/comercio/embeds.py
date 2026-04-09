@@ -16,7 +16,7 @@ def daily(msg: str):
 
 def erro(msg: str):
     return discord.Embed(
-        title="Erro",
+        title="Opss!",
         description=msg,
         color=discord.Color.red()
     )
