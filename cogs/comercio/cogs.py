@@ -85,6 +85,41 @@ class Economia(commands.Cog):
             )
         )
 
+    @economia.command(name="rank", description="Ranking de coins")
+    async def rank(self, interaction: discord.Interaction):
+
+        data = await services.get_ranking()
+
+        if not data:
+            await interaction.response.send_message(
+                embed=embeds.erro("Nenhum dado no ranking.")
+            )
+            return
+
+        text = ""
+
+        medals = ["🥇", "🥈", "🥉"]
+
+        for i, user in enumerate(data, start=1):
+            try:
+                member = interaction.guild.get_member(user["user_id"]) \
+                    or await self.bot.fetch_user(user["user_id"])
+
+                medal = medals[i-1] if i <= 3 else f"{i}."
+
+                text += f"{medal} {member.mention} — **{user['coins']:,} coins**\n"
+
+            except:
+                continue
+
+        embed = discord.Embed(
+            title="🏆 Ranking de Coins",
+            description=text,
+            color=discord.Color.gold()
+        )
+
+        await interaction.response.send_message(embed=embed)
+
     @box.command(name="comprar", description="Comprar lootbox")
     async def buy_box(self, interaction: discord.Interaction):
         user = await services.buy_box(interaction.user.id)

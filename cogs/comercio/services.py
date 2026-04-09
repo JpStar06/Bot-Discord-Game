@@ -166,3 +166,14 @@ async def transfer(sender_id: int, target_id: int, amount: int):
         "taxa": taxa,
         "target_id": target_id
     }
+
+async def get_ranking(limit: int = 10):
+    pool = get_connection()
+
+    async with pool.acquire() as conn:
+        users = await conn.fetch(
+            "SELECT user_id, coins FROM economy ORDER BY coins DESC LIMIT $1",
+            limit
+        )
+
+    return [dict(u) for u in users]
