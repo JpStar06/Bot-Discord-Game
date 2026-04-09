@@ -38,7 +38,7 @@ class Economia(commands.Cog):
             )
         )
     
-    @economia.command(name="trabalho", description="Trabalhe para ganhar coins.")
+    @economia.command(name="work", description="Trabalhe para ganhar coins.")
     @app_commands.checks.cooldown(1, 10)
     async def work(self, interaction: discord.Interaction):
         user = await services.work(interaction.user.id)
