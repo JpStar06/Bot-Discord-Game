@@ -44,5 +44,20 @@ class Economia(commands.Cog):
         user = await services.work(interaction.user.id)
         await interaction.response.send_message(embed=embeds.work(f"Você trabalhou como **{user['job']}** por 1 hora\n💰 Recebeu **{user['reward']} coins**"))
 
+    @work.error
+    async def work_error(self, interaction: discord.Interaction, error):
+        if isinstance(error, app_commands.errors.CommandOnCooldown):
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
+                    ephemeral=True
+                )
+
+
 async def setup(bot):
     await bot.add_cog(Economia(bot))
