@@ -34,3 +34,10 @@ def compra(msg: str):
         description=msg,
         color=discord.Color.green()
     )
+
+def ganhou(msg: str):
+    return discord.Embed(
+        title="GANHOU",
+        description=msg,
+        color=discord.Color.green()
+    )
