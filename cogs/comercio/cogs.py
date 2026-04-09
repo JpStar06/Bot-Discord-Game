@@ -50,14 +50,40 @@ class Economia(commands.Cog):
 
     @economia.command(name="pay", description="Envie coins para outro usuário")
     async def pay(self, interaction: discord.Interaction, usuario: discord.Member, quantia: int):
-        user = await services.transfer(interaction.user.id)
-        if user["error"] == "invalid_amount":
-            await interaction.response.send_message(embed=embeds.erro("o valor minimo de transação é de 100 coins."))
-        elif user["error"] == "no_money":
-            await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficiente para essa transação."))
-        else:
-            await interaction.response.send_message(embed=embeds.pay(f"Você enviou {user['enviado']} coins para {user['target_id']}"))
-        
+
+        if usuario.id == interaction.user.id:
+            await interaction.response.send_message(
+                embed=embeds.erro("❌ Você não pode pagar a si mesmo."),
+                ephemeral=True
+            )
+            return
+
+        data = await services.transfer(
+            interaction.user.id,
+            usuario.id,
+            quantia
+        )
+
+        if "error" in data:
+            if data["error"] == "invalid_amount":
+                await interaction.response.send_message(
+                    embed=embeds.erro("❌ Quantia inválida."),
+                    ephemeral=True
+                )
+            elif data["error"] == "no_money":
+                await interaction.response.send_message(
+                    embed=embeds.erro("❌ Você não tem coins suficientes."),
+                    ephemeral=True
+                )
+            return
+
+        await interaction.response.send_message(
+            embed=embeds.pay(
+                f"💸 {interaction.user.mention} enviou **{data['recebido']} coins** para {usuario.mention}\n\n"
+                f"💰 Valor: `{data['enviado']}`\n"
+                f"🏦 Taxa: `{data['taxa']}`"
+            )
+        )
 
     @box.command(name="comprar", description="Comprar lootbox")
     async def buy_box(self, interaction: discord.Interaction):
