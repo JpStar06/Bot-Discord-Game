@@ -25,7 +25,7 @@ class Casino(commands.Cog):
             await interaction.response.send_message(embed=embeds.erro("Escolha `cara` ou `coroa`"), ephemeral=True)
             return
 
-        coins = await eco.get_coins(interaction.user.id)
+        coins = await self.get_coins(interaction.user.id)
 
         if aposta > coins:
             await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
@@ -63,7 +63,7 @@ class Casino(commands.Cog):
     @casino.command(name="dice", description="Jogue dados")
     @app_commands.checks.cooldown(1, 6)
     async def dice(self, interaction: discord.Interaction, aposta: int):
-        coins = await eco.get_coins(interaction.user.id)
+        coins = await self.get_coins(interaction.user.id)
         if aposta > coins:
             await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
             return
@@ -146,7 +146,7 @@ class Casino(commands.Cog):
         await interaction.response.defer()  # 👈 ESSENCIAL
 
         try:
-            coins = await eco.get_coins(interaction.user.id)
+            coins = await self.get_coins(interaction.user.id)
 
             if aposta <= 0:
                 return await interaction.followup.send("Aposta inválida.")

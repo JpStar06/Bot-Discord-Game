@@ -1,5 +1,6 @@
 import discord
 from . import services
+from cogs.comercio import services as eco
 
 class BlackjackView(discord.ui.View):
     def __init__(self, player, dealer, user_id, aposta):
@@ -8,8 +9,8 @@ class BlackjackView(discord.ui.View):
         self.dealer = dealer
         self.user_id = user_id
         self.aposta = aposta
-        self.get_coins = services.get_coins
-        self.add_coins = services.add_coins
+        self.get_coins = eco.get_coins
+        self.add_coins = eco.add_coins
 
     def build_embed(self, hidden=True):
         dealer_hand = "?, " + ", ".join(map(str, self.dealer[1:])) if hidden else ", ".join(map(str, self.dealer))
