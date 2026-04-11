@@ -12,8 +12,19 @@ class Mis(commands.Cog):
 
     @app_commands.command(name="8ball", description="Faça uma pergunta para a bola mágica")
     async def eightball(self, interaction: discord.Interaction, pergunta: str):
-        escolha = await services.ball(interaction.user.id)
-        await interaction.response.send_message(embed=embeds.ball(f"Pergunta: {pergunta}\nResposta: {escolha['resposta']}"))
+        
+        itens = [
+            "Sim.",
+            "Não.",
+            "Talvez.",
+            "Com certeza.",
+            "Pergunte novamente depois.",
+            "Muito improvável.",
+            "Definitivamente."
+        ]
+        resposta = random.choice(itens)
+
+        await interaction.response.send_message(embed=embeds.ball(f"Pergunta: {pergunta}\nResposta: {resposta}"))
 
 async def setup(bot):
     await bot.add_cog(Mis(bot))
