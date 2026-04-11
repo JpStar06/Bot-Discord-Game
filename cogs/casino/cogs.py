@@ -25,7 +25,7 @@ class Casino(commands.Cog):
             await interaction.response.send_message(embed=embeds.erro("Escolha `cara` ou `coroa`"), ephemeral=True)
             return
 
-        coins = await self.get_coins(interaction.user.id)
+        coins = await eco.get_coins(interaction.user.id)
 
         if aposta > coins:
             await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
