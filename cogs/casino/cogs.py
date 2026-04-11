@@ -5,6 +5,7 @@ from discord.ext import commands
 from database import get_connection
 from . import services
 from . import embeds
+from . import views
 
 class Casino(commands.Cog):
     def __init__(self, bot):
@@ -139,8 +140,16 @@ class Casino(commands.Cog):
                     ephemeral=True
                 )
     
-    @casino.command(name="blackjack", description="Clásico jogo de cartas")
+    @casino.command(name="blackjack", description="Clasico jogo de cartas")
     async def blackjack(self, interaction: discord.Interaction, aposta: int):
+
+        player, dealer = services.start_game()
+
+        view = views.BlackjackView(player, dealer, interaction.user.id)
+        await interaction.response.send_message(
+            embed=view.build_embed(),
+            view=view
+        )
 
 #-------------SETUP---------------
 async def setup(bot):
