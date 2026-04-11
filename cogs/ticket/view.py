@@ -6,7 +6,7 @@ import asyncio
 class EditPanelView(discord.ui.View):
 
     def __init__(self, data, ticket_id, guild_id):
-        super().__init__(timeout=300)
+        super().__init__(timeout=None)
         self.data = data
         self.ticket_id = ticket_id
         self.guild_id = guild_id
@@ -73,17 +73,62 @@ class TicketView(discord.ui.View):
             return
 
         embed = TicketEmbed.topico(data)
-        staff_mention = ""
 
-        if data["staff_id"]:
-            role = interaction.guild.get_role(data["staff_id"])
+        staff_mention = ""
+        staff_id = data.get("staff_id")
+
+        if staff_id:
+            role = interaction.guild.get_role(staff_id)
             if role:
                 staff_mention = role.mention
 
         await thread.send(
-            content=f"{interaction.user.mention} {staff_mention}",
+            content=f"📢 {interaction.user.mention} {staff_mention}",
             embed=embed,
-            view=CloseTicketView()
+            view=CloseTicketView(),
+            allowed_mentions=discord.AllowedMentions(
+                users=True,
+                roles=True
+            )
+        )
+
+        await interaction.followup.send(
+            f"🎫 Ticket criado: {thread.mention}",
+            ephemeral=True
+        )
+    
+    async def abrir_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.defer(ephemeral=True)
+
+        thread, data = await TicketService.create_thread(
+            interaction,
+            self.ticket_id,
+            interaction.user
+        )
+
+        if not thread:
+            await interaction.followup.send(f"Erro: {data}", ephemeral=True)
+            return
+
+        embed = TicketEmbed.topico(data)
+
+        staff_mention = ""
+        staff_id = data.get("staff_id")
+
+        if staff_id:
+            role = interaction.guild.get_role(staff_id)
+            if role:
+                staff_mention = role.mention
+
+        await thread.send(
+            content=f"📢 {interaction.user.mention} {staff_mention}",
+            embed=embed,
+            view=CloseTicketView(),
+            allowed_mentions=discord.AllowedMentions(
+                users=True,
+                roles=True
+            )
         )
 
         await interaction.followup.send(
