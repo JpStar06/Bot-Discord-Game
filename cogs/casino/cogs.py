@@ -146,7 +146,7 @@ class Casino(commands.Cog):
         await interaction.response.defer()  # 👈 ESSENCIAL
 
         try:
-            user = await services.get_user(interaction.user.id)
+            user = await self.get_coins(interaction.user.id)
 
             if aposta <= 0:
                 return await interaction.followup.send("Aposta inválida.")
