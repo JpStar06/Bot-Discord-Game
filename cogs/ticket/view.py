@@ -73,9 +73,15 @@ class TicketView(discord.ui.View):
             return
 
         embed = TicketEmbed.topico(data)
+        staff_mention = ""
+
+        if data["staff_id"]:
+            role = interaction.guild.get_role(data["staff_id"])
+            if role:
+                staff_mention = role.mention
 
         await thread.send(
-            content=f"{interaction.user.mention}",
+            content=f"{interaction.user.mention} {staff_mention}",
             embed=embed,
             view=CloseTicketView()
         )
