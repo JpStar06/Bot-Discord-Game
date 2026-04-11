@@ -5,7 +5,7 @@ from cogs.ticket.services import TicketService
 from cogs.ticket.embeds import TicketEmbed, acerto
 from cogs.ticket.view import EditPanelView
 from cogs.ticket.modals import EditPanelModal
-
+from cogs.ticket.modals import EditTopicModal
 
 
 class Tickets(commands.Cog):
@@ -61,6 +61,29 @@ class Tickets(commands.Cog):
 
         await canal.send(embed=embed)
         await interaction.response.send_message(embed=acerto(f"✅ Embed `{id}` enviado para {canal.mention}!"))
+    
+    @tickets.command(name="editar-topico", description="Edita o embed do tópico do ticket")
+    async def editar_topico(self, interaction: discord.Interaction, id: int):
+
+        data = await TicketService.get_ticket(
+            interaction.guild.id,
+            id
+        )
+
+        if not data:
+            await interaction.response.send_message(
+                "Ticket não encontrado.",
+                ephemeral=True
+            )
+            return
+
+        modal = EditTopicModal(
+            data,
+            id,
+            interaction.guild.id
+        )
+
+        await interaction.response.send_modal(modal)
 
 async def setup(bot):
     await bot.add_cog(Tickets(bot))
