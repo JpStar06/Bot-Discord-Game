@@ -33,7 +33,7 @@ class BlackjackView(discord.ui.View):
         self.player.append(services.draw_card())
 
         if services.calculate_hand(self.player) > 21:
-            await self.add_coins(interaction.user.id, -self.aposta)
+            await self.add_coins(self.user.id, -self.aposta)
             embed = self.build_embed(hidden=False)
             embed.description += "\n💀 Você estourou!"
             self.stop()
@@ -57,10 +57,10 @@ class BlackjackView(discord.ui.View):
         embed = self.build_embed(hidden=False)
 
         if dealer_total > 21 or player_total > dealer_total:
-            embed.description += "\n🎉 Você venceu!\n +{self.aposta} coins"
+            embed.description += f"\n🎉 Você venceu!\n +{self.aposta} coins"
             await self.add_coins(self.user_id, self.aposta)
         elif player_total < dealer_total:
-            embed.description += "\n💀 Você perdeu!\n -{self.aposta} coins"
+            embed.description += f"\n💀 Você perdeu!\n -{self.aposta} coins"
             await self.add_coins(self.user_id, -self.aposta)
         else:
             embed.description += "\n🤝 Empate!"
