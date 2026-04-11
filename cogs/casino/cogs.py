@@ -140,7 +140,7 @@ class Casino(commands.Cog):
                     ephemeral=True
                 )
     
-    @casino.command(name="blackjack", description="Clasico jogo de cartas")
+    @app_commands.command(name="blackjack", description="Clasico jogo de cartas")
     async def blackjack(self, interaction: discord.Interaction, aposta: int):
         user = await services.get_user(interaction.user.id)
 
@@ -152,8 +152,10 @@ class Casino(commands.Cog):
             await interaction.response.send_message(embed=embeds.erro("Você não tem coins suficientes."), ephemeral=True)
             return
 
-
-        player, dealer = services.start_game()
+        try:
+            player, dealer = services.start_game()
+        except Exception as e:
+            print("ERRO START:", e)
 
         view = views.BlackjackView(player, dealer, interaction.user.id, aposta)
         await interaction.response.send_message(

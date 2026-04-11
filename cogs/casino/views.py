@@ -1,6 +1,5 @@
 import discord
 from . import services
-from . import cogs
 
 class BlackjackView(discord.ui.View):
     def __init__(self, player, dealer, user_id, aposta):
