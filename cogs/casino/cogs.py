@@ -3,15 +3,15 @@ import random
 from discord import app_commands
 from discord.ext import commands
 from database import get_connection
-from . import services
-from . import embeds
-from . import views
+from . import services, embeds, views
+from cogs.comercio import services as eco
 
 class Casino(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.get_coins = services.get_coins
-        self.add_coins = services.add_coins
+        self.get_coins = eco.get_coins
+        self.add_coins = eco.add_coins
+        self.get_user = eco.get_user
 
     casino = app_commands.Group(name="casino", description="Jogos de aposta")
 
@@ -146,12 +146,12 @@ class Casino(commands.Cog):
         await interaction.response.defer()  # 👈 ESSENCIAL
 
         try:
-            user = await self.get_coins(interaction.user.id)
+            coins = await self.get_coins(interaction.user.id)
 
             if aposta <= 0:
                 return await interaction.followup.send("Aposta inválida.")
 
-            if aposta > user["coins"]:
+            if aposta > coins:
                 return await interaction.followup.send("Você não tem coins suficientes.")
 
             player, dealer = services.start_game()
