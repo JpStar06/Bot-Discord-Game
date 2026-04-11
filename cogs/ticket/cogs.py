@@ -1,10 +1,10 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from ticket.modals import EditPanelModal
-from ticket.services import TicketService
-from ticket.embeds import TicketEmbed
-from ticket.view import EditPanelView
+from cogs.ticket.services import TicketService
+from cogs.ticket.embeds import TicketEmbed
+from cogs.ticket.view import EditPanelView
+from cogs.ticket.modals import EditPanelModal
 
 
 class Tickets(commands.Cog):

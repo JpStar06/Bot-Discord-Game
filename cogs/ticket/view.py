@@ -1,6 +1,5 @@
 import discord
-from ticket.services import TicketService
-
+from cogs.ticket.services import TicketService
 
 class EditPanelView(discord.ui.View):
 

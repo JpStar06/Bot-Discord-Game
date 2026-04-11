@@ -1,7 +1,6 @@
 import discord
-from ticket.embeds import TicketEmbed
-from ticket.view import EditPanelView
-
+from cogs.ticket.embeds import TicketEmbed
+from cogs.ticket.view import EditPanelView
 
 class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
 
