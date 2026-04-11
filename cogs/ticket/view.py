@@ -75,10 +75,14 @@ class TicketView(discord.ui.View):
         embed = TicketEmbed.topico(data)
         staff_mention = ""
 
-        if data["staff_id"]:
+        if data.get("staff_id"):
             role = interaction.guild.get_role(data["staff_id"])
             if role:
                 staff_mention = role.mention
+            else:
+                staff_mention = f"⚠️ Cargo de staff (ID: {data['staff_id']}) não encontrado"
+        else:
+            staff_mention = "@here"   # ou "" se não quiser mencionar ninguém
 
         await thread.send(
             content=f"{interaction.user.mention} {staff_mention}",
