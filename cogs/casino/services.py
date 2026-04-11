@@ -16,17 +16,28 @@ def spin_slots(aposta: int):
     
 
 def draw_card():
-    icon = ["♣️", "♠️", "♥️", "♦️"]
-    deck = [2,3,4,5,6,7,8,9,10,10,10,10,11]
-    return random.choice(icon+deck)
+    suits = ["♣️", "♠️", "♥️", "♦️"]
+    values = [
+        ("A", 11),
+        ("2", 2), ("3", 3), ("4", 4), ("5", 5),
+        ("6", 6), ("7", 7), ("8", 8), ("9", 9),
+        ("10", 10), ("J", 10), ("Q", 10), ("K", 10)
+    ]
+
+    value, points = random.choice(values)
+    suit = random.choice(suits)
+
+    return {"display": f"{value}{suit}", "value": points}
 
 def calculate_hand(hand):
-    total = sum(hand)
+    total = sum(card["value"] for card in hand)
 
     # tratar Ás
-    while total > 21 and 11 in hand:
-        hand[hand.index(11)] = 1
-        total = sum(hand)
+    aces = sum(1 for card in hand if card["value"] == 11)
+
+    while total > 21 and aces:
+        total -= 10
+        aces -= 1
 
     return total
 
