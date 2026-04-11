@@ -27,3 +27,9 @@ class TicketEmbed:
             embed.set_image(url=data["imagem_cliente"])
 
         return embed
+def acerto(msg: str):
+    return discord.Embed(
+        title="concluido",
+        description=msg,
+        color=discord.Color.green()
+    )
