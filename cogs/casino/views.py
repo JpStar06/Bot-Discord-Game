@@ -16,10 +16,11 @@ class BlackjackView(discord.ui.View):
         dealer_hand = "?, " + ", ".join(map(str, self.dealer[1:])) if hidden else ", ".join(map(str, self.dealer))
 
         return discord.Embed(
-            title="🃏 Blackjack",
+            title="**🃏 Blackjack**",
             description=(
-                f"**Sua mão:** {', '.join(map(str, self.player))} ({services.calculate_hand(self.player)})\n"
-                f"**Dealer:** {dealer_hand}"
+                f"Aposta: {self.aposta}"
+                f"**Sua mão:\n** {', '.join(map(str, self.player))} ({services.calculate_hand(self.player)})\n"
+                f"**Dealer:\n** {dealer_hand}"
             ),
             color=discord.Color.green()
         )
