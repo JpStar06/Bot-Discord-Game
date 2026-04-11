@@ -2,9 +2,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from cogs.ticket.services import TicketService
-from cogs.ticket.embeds import TicketEmbed
+from cogs.ticket.embeds import TicketEmbed, acerto
 from cogs.ticket.view import EditPanelView
 from cogs.ticket.modals import EditPanelModal
+
 
 
 class Tickets(commands.Cog):
@@ -48,7 +49,7 @@ class Tickets(commands.Cog):
 
     # ---------- ENVIAR ----------
     @tickets.command(name="enviar")
-    async def enviar(self, interaction: discord.Interaction, id: int):
+    async def enviar(self, interaction: discord.Interaction, id: int, canal: discord.TextChannel):
 
         data = await TicketService.get_ticket(interaction.guild.id, id)
 
@@ -58,11 +59,8 @@ class Tickets(commands.Cog):
 
         embed = TicketEmbed.painel(data)
 
-        await interaction.response.send_message(
-            embed=embed,
-            view=None
-        )
-
+        await canal.send(embed=embed)
+        await interaction.response.send_message(embed=acerto(f"✅ Embed `{id}` enviado para {canal.mention}!"))
 
 async def setup(bot):
     await bot.add_cog(Tickets(bot))
