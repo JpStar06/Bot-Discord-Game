@@ -1,12 +1,16 @@
 import discord
 from . import services
+from . import cogs
 
 class BlackjackView(discord.ui.View):
-    def __init__(self, player, dealer, user_id):
+    def __init__(self, player, dealer, user_id, aposta):
         super().__init__(timeout=60)
         self.player = player
         self.dealer = dealer
         self.user_id = user_id
+        self.aposta = aposta
+        self.get_coins = services.get_coins
+        self.add_coins = services.add_coins
 
     def build_embed(self, hidden=True):
         dealer_hand = "?, " + ", ".join(map(str, self.dealer[1:])) if hidden else ", ".join(map(str, self.dealer))
@@ -29,6 +33,7 @@ class BlackjackView(discord.ui.View):
         self.player.append(services.draw_card())
 
         if services.calculate_hand(self.player) > 21:
+            await self.add_coins(interaction.user.id, -self.aposta)
             embed = self.build_embed(hidden=False)
             embed.description += "\n💀 Você estourou!"
             self.stop()
@@ -52,9 +57,11 @@ class BlackjackView(discord.ui.View):
         embed = self.build_embed(hidden=False)
 
         if dealer_total > 21 or player_total > dealer_total:
-            embed.description += "\n🎉 Você venceu!"
+            embed.description += "\n🎉 Você venceu!\n +{self.aposta} coins"
+            await self.add_coins(self.user_id, self.aposta)
         elif player_total < dealer_total:
-            embed.description += "\n💀 Você perdeu!"
+            embed.description += "\n💀 Você perdeu!\n -{self.aposta} coins"
+            await self.add_coins(self.user_id, -self.aposta)
         else:
             embed.description += "\n🤝 Empate!"
 
