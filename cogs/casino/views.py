@@ -13,14 +13,21 @@ class BlackjackView(discord.ui.View):
         self.add_coins = eco.add_coins
 
     def build_embed(self, hidden=True):
-        dealer_hand = "?, " + ", ".join(map(str, self.dealer[1:])) if hidden else ", ".join(map(str, self.dealer))
+        dealer_hand = (
+            "?, " + ", ".join(card["display"] for card in self.dealer[1:])
+            if hidden
+            else ", ".join(card["display"] for card in self.dealer)
+        )
 
         return discord.Embed(
-            title="**🃏 Blackjack**",
+            title="🃏 Blackjack",
             description=(
-                f"Aposta: {self.aposta}"
-                f"**Sua mão:\n** {', '.join(map(str, self.player))} ({services.calculate_hand(self.player)})\n"
-                f"**Dealer:\n** {dealer_hand}"
+                f"💰 Aposta: **{self.aposta}**\n\n"
+                f"**Sua mão:**\n"
+                f"{', '.join(card['display'] for card in self.player)} "
+                f"({services.calculate_hand(self.player)})\n\n"
+                f"**Dealer:**\n"
+                f"{dealer_hand}"
             ),
             color=discord.Color.green()
         )
