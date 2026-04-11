@@ -18,15 +18,16 @@ class TicketEmbed:
     @staticmethod
     def topico(data):
         embed = discord.Embed(
-            title=data["titulo_cliente"],
-            description=data["descricao_cliente"],
-            color=data["cor_cliente"]
+            title=data["titulo_cliente"] or "Ticket",
+            description=data["descricao_cliente"] or "Aguarde atendimento",
+            color=data["cor_cliente"] or 0xFF0000
         )
 
         if data.get("imagem_cliente"):
             embed.set_image(url=data["imagem_cliente"])
 
         return embed
+    
 def acerto(msg: str):
     return discord.Embed(
         title="concluido",

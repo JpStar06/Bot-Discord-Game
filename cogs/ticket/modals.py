@@ -72,7 +72,13 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
         self.data = dict(data)
         self.ticket_id = ticket_id
         self.guild_id = guild_id
-
+        
+        self.staff = discord.ui.TextInput(
+        label="ID do cargo staff",
+        placeholder="Ex: 123456789012345678",
+        required=False,
+        default=str(data.get("staff_id") or "")
+        )
         self.titulo = discord.ui.TextInput(
             label="Título",
             default=data["titulo_cliente"]
@@ -99,14 +105,22 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
         self.add_item(self.descricao)
         self.add_item(self.cor)
         self.add_item(self.imagem)
+        self.add_item(self.staff)
 
     async def on_submit(self, interaction: discord.Interaction):
+        staff_id = None
+        if self.staff.value:
+            try:
+                staff_id = int(self.staff.value)
+            except:
+                staff_id = None
 
         self.data.update({
             "titulo": self.titulo.value,
             "descricao": self.descricao.value,
             "cor": int(self.cor.value),
-            "imagem": self.imagem.value or None
+            "imagem": self.imagem.value or None,
+            "staff_id": staff_id
         })
 
         embed = TicketEmbed.topico({

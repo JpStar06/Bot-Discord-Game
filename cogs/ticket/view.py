@@ -1,5 +1,7 @@
 import discord
 from cogs.ticket.services import TicketService
+from cogs.ticket.embeds import TicketEmbed
+import asyncio
 
 class EditPanelView(discord.ui.View):
 
@@ -42,10 +44,75 @@ class EditTopicView(discord.ui.View):
                 "descricao": self.data["descricao"],
                 "cor": self.data["cor"],
                 "imagem": self.data["imagem"]
-            }
+            },
+            self.data
         )
 
         await interaction.response.send_message(
             "✅ Tópico atualizado com sucesso!",
             ephemeral=True
         )
+
+class TicketView(discord.ui.View):
+
+    def __init__(self, ticket_id: int):
+        super().__init__(timeout=None)
+        self.ticket_id = ticket_id
+
+    @discord.ui.button(
+        label="Abrir Ticket",
+        style=discord.ButtonStyle.primary,
+        emoji="🎫",
+        custom_id="abrir_ticket"
+    )
+    async def abrir_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.defer(ephemeral=True)
+
+        thread, data = await TicketService.create_thread(
+            interaction,
+            self.ticket_id,
+            interaction.user
+        )
+
+        if not thread:
+            await interaction.followup.send(f"Erro: {data}", ephemeral=True)
+            return
+
+        embed = TicketEmbed.topico(data)
+
+        await thread.send(
+            content=f"{interaction.user.mention}",
+            embed=embed,
+            view=CloseTicketView()
+        )
+
+        await interaction.followup.send(
+            f"🎫 Ticket criado: {thread.mention}",
+            ephemeral=True
+        )
+
+class CloseTicketView(discord.ui.View):
+
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="Fechar Ticket",
+        style=discord.ButtonStyle.danger,
+        emoji="🔒",
+        custom_id="fechar_ticket"
+    )
+    async def fechar(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.send_message(
+            "🔒 Fechando em 5 segundos...",
+            ephemeral=True
+        )
+
+        await asyncio.sleep(5)
+
+        try:
+            await interaction.channel.delete()
+        except:
+            pass

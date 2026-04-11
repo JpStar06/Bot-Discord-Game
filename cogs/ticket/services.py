@@ -1,6 +1,7 @@
 import asyncpg
 import os
 from dotenv import load_dotenv
+import discord
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -93,3 +94,45 @@ class TicketService:
         )
 
         await conn.close()
+    
+    @staticmethod
+    async def create_thread(interaction, ticket_id, user):
+        conn = await TicketService.get_connection()
+
+        data = await conn.fetchrow(
+            """
+            SELECT 
+                titulo_cliente, descricao_cliente, cor_cliente, imagem_cliente, staff_id
+            FROM tickets 
+            WHERE id=$1 AND guild_id=$2
+            """,
+            ticket_id,
+            interaction.guild.id
+        )
+
+        await conn.close()
+
+        if not data:
+            return None, "Configuração não encontrada."
+
+        try:
+            thread = await interaction.channel.create_thread(
+                name=f"ticket-{user.name}",
+                type=discord.ChannelType.private_thread
+            )
+
+            await thread.add_user(user)
+
+            # 👮 adiciona staff (se tiver)
+            if data["staff_id"]:
+                role = interaction.guild.get_role(data["staff_id"])
+
+                if role:
+                    for member in role.members:
+                        await thread.add_user(member)
+
+
+        except Exception as e:
+            return None, str(e)
+
+        return thread, data
