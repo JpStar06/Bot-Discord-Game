@@ -138,6 +138,9 @@ class Casino(commands.Cog):
                     embed=embeds.erro(f"⏳ Espere {round(error.retry_after)} segundos para usar novamente."),
                     ephemeral=True
                 )
+    
+    @casino.command(name="blackjack", description="Clásico jogo de cartas")
+    async def blackjack(self, interaction: discord.Interaction, aposta: int):
 
 #-------------SETUP---------------
 async def setup(bot):
