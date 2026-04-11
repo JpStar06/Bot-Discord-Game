@@ -87,7 +87,7 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
         
         self.staff = discord.ui.TextInput(
             label="Cargo Staff",
-            placeholder="@Moderador ou ID",
+            placeholder="@Staff",
             required=False,
             default=str(data.get("staff_id") or "")
         )
@@ -123,10 +123,9 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
     async def on_submit(self, interaction: discord.Interaction):
         staff_id = None
         if self.staff.value:
-            try:
-                staff_id = int(self.staff.value)
-            except:
-                staff_id = None
+            match = re.search(r"\d+", self.staff.value)
+            if match:
+                staff_id = int(match.group())
 
         self.data.update({
             "titulo": self.titulo.value,

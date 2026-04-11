@@ -82,13 +82,18 @@ class TicketService:
         await conn.execute(
             """
             UPDATE tickets SET 
-            titulo_cliente=$1, descricao_cliente=$2, cor_cliente=$3, imagem_cliente=$4
-            WHERE id=$5 AND guild_id=$6
+            titulo_cliente=$1,
+            descricao_cliente=$2,
+            cor_cliente=$3,
+            imagem_cliente=$4,
+            staff_id=$5
+            WHERE id=$6 AND guild_id=$7
             """,
             data["titulo"],
             data["descricao"],
             data["cor"],
             data["imagem"],
+            data.get("staff_id"),  # 🔥 NOVO
             ticket_id,
             guild_id
         )
