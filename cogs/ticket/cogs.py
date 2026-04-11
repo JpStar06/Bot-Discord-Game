@@ -32,19 +32,19 @@ class Tickets(commands.Cog):
         data = await TicketService.get_ticket(interaction.guild.id, id)
 
         if not data:
-            await interaction.response.send_message("Ticket não encontrado.", ephemeral=True)
+            await interaction.response.send_message(
+                "Ticket não encontrado.",
+                ephemeral=True
+            )
             return
 
-        view = EditPanelView(dict(data), id, interaction.guild.id)
-
-        embed = TicketEmbed.painel(data)
-
-        await interaction.response.send_message(
-            content="✏️ Editor de painel:",
-            embed=embed,
-            view=view,
-            ephemeral=True
+        modal = EditPanelModal(
+            data,
+            id,
+            interaction.guild.id
         )
+
+        await interaction.response.send_modal(modal)
 
     # ---------- ENVIAR ----------
     @tickets.command(name="enviar")
