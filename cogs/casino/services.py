@@ -16,8 +16,9 @@ def spin_slots(aposta: int):
     
 
 def draw_card():
+    icon = ["♣️", "♠️", "♥️", "♦️"]
     deck = [2,3,4,5,6,7,8,9,10,10,10,10,11]
-    return random.choice(deck)
+    return random.choice(icon+deck)
 
 def calculate_hand(hand):
     total = sum(hand)
