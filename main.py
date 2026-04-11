@@ -4,6 +4,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from database import init_db
+from cogs.ticket.view import EditTopicView
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -45,6 +46,7 @@ bot = Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
+    bot.add_view(EditTopicView({}, 0, 0))
     print(f"🤖 Logado como {bot.user} (ID: {bot.user.id})")
     print("------")
 

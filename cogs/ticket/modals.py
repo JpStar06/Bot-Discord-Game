@@ -2,6 +2,7 @@ import discord
 from cogs.ticket.embeds import TicketEmbed
 from cogs.ticket.view import EditPanelView
 from cogs.ticket.view import EditTopicView
+import re
 
 
 class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
@@ -42,11 +43,22 @@ class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
 
     async def on_submit(self, interaction: discord.Interaction):
 
+        staff_id = None
+
+        if self.staff.value:
+            import re
+
+            match = re.search(r"\d+", self.staff.value)
+
+            if match:
+                staff_id = int(match.group())
+
         self.data.update({
             "titulo": self.titulo.value,
             "descricao": self.descricao.value,
             "cor": int(self.cor.value),
-            "imagem": self.imagem.value or None
+            "imagem": self.imagem.value or None,
+            "staff_id": staff_id
         })
 
         embed = TicketEmbed.painel(self.data)
@@ -74,11 +86,12 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
         self.guild_id = guild_id
         
         self.staff = discord.ui.TextInput(
-        label="ID do cargo staff",
-        placeholder="Ex: 123456789012345678",
-        required=False,
-        default=str(data.get("staff_id") or "")
+            label="Cargo Staff",
+            placeholder="@Moderador ou ID",
+            required=False,
+            default=str(data.get("staff_id") or "")
         )
+
         self.titulo = discord.ui.TextInput(
             label="Título",
             default=data["titulo_cliente"]
