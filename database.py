@@ -19,7 +19,6 @@ async def init_db():
         max_size=5
     )
 
-    print("✅ Banco conectado com sucesso!")
 
     # cria tabelas
     async with pool.acquire() as conn:
