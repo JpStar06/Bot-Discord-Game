@@ -140,7 +140,7 @@ class Casino(commands.Cog):
                     ephemeral=True
                 )
     
-    @app_commands.command(name="blackjack", description="Jogar blackjack")
+    @casino.command(name="blackjack", description="Jogar blackjack")
     async def blackjack(self, interaction: discord.Interaction, aposta: int):
 
         await interaction.response.defer()  # 👈 ESSENCIAL
