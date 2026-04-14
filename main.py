@@ -26,19 +26,19 @@ class Bot(commands.Bot):
             if os.path.isdir(path):
                 try:
                     await self.load_extension(f"cogs.{folder}.cogs")
-                    print(f"✅ Cog '{folder}' carregada!")
+                    print(f"✅ Módulo '{folder}' carregada!")
                     count += 1
                 except Exception as e:
                     print(f"❌ Erro ao carregar '{folder}': {e}")
 
-        print(f"\n🚀 Total de cogs: {count}")
+        print(f"\n🚀 Total de Módulos: {count}")
 
         # 🔹 Sync global dos comandos
         try:
             synced = await self.tree.sync()
-            print(f"🌍 Slash commands sincronizados: {len(synced)}")
+            print(f"módulos sincronizados: {len(synced)}")
         except Exception as e:
-            print(f"❌ Erro ao sincronizar comandos: {e}")
+            print(f"❌ Erro ao sincronizar os módulos: {e}")
 
 
 bot = Bot(command_prefix="!", intents=intents)
