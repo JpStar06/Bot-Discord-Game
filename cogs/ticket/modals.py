@@ -1,8 +1,8 @@
+import re
+
 import discord
 from cogs.ticket.embeds import TicketEmbed
-from cogs.ticket.view import EditPanelView
-from cogs.ticket.view import EditTopicView
-import re
+from cogs.ticket.view import EditPanelView, EditTopicView
 
 
 class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
@@ -16,24 +16,21 @@ class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
 
         self.titulo = discord.ui.TextInput(
             label="Título",
-            default=data["titulo"]
+            default=data["titulo"],
         )
-
         self.descricao = discord.ui.TextInput(
             label="Descrição",
             style=discord.TextStyle.paragraph,
-            default=data["descricao"]
+            default=data["descricao"],
         )
-
         self.cor = discord.ui.TextInput(
             label="Cor (hex ou int)",
-            default=str(data["cor"])
+            default=str(data["cor"]),
         )
-
         self.imagem = discord.ui.TextInput(
             label="URL da imagem",
             required=False,
-            default=data.get("imagem")
+            default=data.get("imagem"),
         )
 
         self.add_item(self.titulo)
@@ -42,39 +39,23 @@ class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
         self.add_item(self.imagem)
 
     async def on_submit(self, interaction: discord.Interaction):
-
-        staff_id = None
-
-        if self.staff.value:
-            import re
-
-            match = re.search(r"\d+", self.staff.value)
-
-            if match:
-                staff_id = int(match.group())
-
         self.data.update({
             "titulo": self.titulo.value,
             "descricao": self.descricao.value,
-            "cor": int(self.cor.value),
+            "cor": int(self.cor.value, 0),   # int(..., 0) aceita tanto "255" quanto "0xFF"
             "imagem": self.imagem.value or None,
-            "staff_id": staff_id
         })
 
         embed = TicketEmbed.painel(self.data)
-
-        view = EditPanelView(
-            self.data,
-            self.ticket_id,
-            self.guild_id
-        )
+        view = EditPanelView(self.data, self.ticket_id, self.guild_id)
 
         await interaction.response.send_message(
             content="👀 Pré-visualização:",
             embed=embed,
             view=view,
-            ephemeral=True
+            ephemeral=True,
         )
+
 
 class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
 
@@ -84,34 +65,30 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
         self.data = dict(data)
         self.ticket_id = ticket_id
         self.guild_id = guild_id
-        
+
         self.staff = discord.ui.TextInput(
             label="Cargo Staff",
-            placeholder="@Staff",
+            placeholder="@Staff ou ID do cargo",
             required=False,
-            default=str(data.get("staff_id") or "")
+            default=str(data.get("staff_id") or ""),
         )
-
         self.titulo = discord.ui.TextInput(
             label="Título",
-            default=data["titulo_cliente"]
+            default=data["titulo_cliente"],
         )
-
         self.descricao = discord.ui.TextInput(
             label="Descrição",
             style=discord.TextStyle.paragraph,
-            default=data["descricao_cliente"]
+            default=data["descricao_cliente"],
         )
-
         self.cor = discord.ui.TextInput(
             label="Cor (int ou hex)",
-            default=str(data["cor_cliente"])
+            default=str(data["cor_cliente"]),
         )
-
         self.imagem = discord.ui.TextInput(
             label="URL da imagem",
             required=False,
-            default=data.get("imagem_cliente")
+            default=data.get("imagem_cliente"),
         )
 
         self.add_item(self.titulo)
@@ -128,29 +105,19 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
                 staff_id = int(match.group())
 
         self.data.update({
-            "titulo": self.titulo.value,
-            "descricao": self.descricao.value,
-            "cor": int(self.cor.value),
-            "imagem": self.imagem.value or None,
-            "staff_id": staff_id
+            "titulo_cliente": self.titulo.value,        # ✅ chave correta
+            "descricao_cliente": self.descricao.value,  # ✅ chave correta
+            "cor_cliente": int(self.cor.value, 0),      # ✅ chave correta + aceita hex
+            "imagem_cliente": self.imagem.value or None, # ✅ chave correta
+            "staff_id": staff_id,
         })
 
-        embed = TicketEmbed.topico({
-            "titulo_cliente": self.data["titulo"],
-            "descricao_cliente": self.data["descricao"],
-            "cor_cliente": self.data["cor"],
-            "imagem_cliente": self.data["imagem"]
-        })
-
-        view = EditTopicView(
-            self.data,
-            self.ticket_id,
-            self.guild_id
-        )
+        embed = TicketEmbed.topico(self.data)
+        view = EditTopicView(self.data, self.ticket_id, self.guild_id)
 
         await interaction.response.send_message(
             content="👀 Pré-visualização do tópico:",
             embed=embed,
             view=view,
-            ephemeral=True
+            ephemeral=True,
         )
