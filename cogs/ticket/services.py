@@ -1,121 +1,134 @@
 import asyncpg
 import os
-from dotenv import load_dotenv
 import discord
+from dotenv import load_dotenv
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Pool global — inicializado uma vez no startup do bot
+_pool: asyncpg.Pool | None = None
+
+
+async def init_pool():
+    """Chame isso no startup do bot: await init_pool()"""
+    global _pool
+    _pool = await asyncpg.create_pool(DATABASE_URL, min_size=2, max_size=10)
+
+
+async def get_pool() -> asyncpg.Pool:
+    if _pool is None:
+        raise RuntimeError("Pool não inicializado. Chame await init_pool() no startup do bot.")
+    return _pool
+
 
 class TicketService:
 
-    @staticmethod
-    async def get_connection():
-        return await asyncpg.connect(DATABASE_URL)
-
     # ---------- CREATE ----------
+
     @staticmethod
     async def create_ticket(guild_id: int, channel_id: int):
-        conn = await TicketService.get_connection()
-
-        ticket_id = await conn.fetchval(
-            """
-            INSERT INTO tickets (
-                guild_id, titulo, descricao, cor, emoji, canal_id,
-                titulo_cliente, descricao_cliente, cor_cliente
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            ticket_id = await conn.fetchval(
+                """
+                INSERT INTO tickets (
+                    guild_id, titulo, descricao, cor, emoji, canal_id,
+                    titulo_cliente, descricao_cliente, cor_cliente
+                )
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+                RETURNING id
+                """,
+                guild_id,
+                "Suporte",
+                "Clique no botão abaixo para abrir um ticket.",
+                0x3498DB,
+                "🎫",
+                channel_id,
+                "ESPERE SER ATENDIDO",
+                "Nossa equipe pode estar ocupada.",
+                0xFF0000,
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-            RETURNING id
-            """,
-            guild_id,
-            "Suporte",
-            "Clique no botão abaixo para abrir um ticket.",
-            0x3498db,
-            "🎫",
-            channel_id,
-            "ESPERE SER ATENDIDO",
-            "Nossa equipe pode estar ocupada.",
-            0xFF0000
-        )
-
-        await conn.close()
         return ticket_id
 
     # ---------- GET ----------
+
     @staticmethod
     async def get_ticket(guild_id: int, ticket_id: int):
-        conn = await TicketService.get_connection()
-
-        data = await conn.fetchrow(
-            "SELECT * FROM tickets WHERE id=$1 AND guild_id=$2",
-            ticket_id,
-            guild_id
-        )
-
-        await conn.close()
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            data = await conn.fetchrow(
+                "SELECT * FROM tickets WHERE id=$1 AND guild_id=$2",
+                ticket_id,
+                guild_id,
+            )
         return data
 
     # ---------- UPDATE ----------
-    @staticmethod
-    async def update_panel(guild_id, ticket_id, data: dict):
-        conn = await TicketService.get_connection()
-
-        await conn.execute(
-            """
-            UPDATE tickets SET titulo=$1, descricao=$2, cor=$3, imagem=$4
-            WHERE id=$5 AND guild_id=$6
-            """,
-            data["titulo"],
-            data["descricao"],
-            data["cor"],
-            data["imagem"],
-            ticket_id,
-            guild_id
-        )
-
-        await conn.close()
 
     @staticmethod
-    async def update_topic(guild_id, ticket_id, data: dict):
-        conn = await TicketService.get_connection()
+    async def update_panel(guild_id: int, ticket_id: int, data: dict):
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE tickets
+                SET titulo=$1, descricao=$2, cor=$3, imagem=$4
+                WHERE id=$5 AND guild_id=$6
+                """,
+                data["titulo"],
+                data["descricao"],
+                data["cor"],
+                data.get("imagem"),
+                ticket_id,
+                guild_id,
+            )
 
-        await conn.execute(
-            """
-            UPDATE tickets SET 
-            titulo_cliente=$1,
-            descricao_cliente=$2,
-            cor_cliente=$3,
-            imagem_cliente=$4,
-            staff_id=$5
-            WHERE id=$6 AND guild_id=$7
-            """,
-            data["titulo"],
-            data["descricao"],
-            data["cor"],
-            data["imagem"],
-            data.get("staff_id"),  # 🔥 NOVO
-            ticket_id,
-            guild_id
-        )
-
-        await conn.close()
-    
     @staticmethod
-    async def create_thread(interaction, ticket_id, user):
-        conn = await TicketService.get_connection()
+    async def update_topic(guild_id: int, ticket_id: int, data: dict):
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE tickets
+                SET
+                    titulo_cliente=$1,
+                    descricao_cliente=$2,
+                    cor_cliente=$3,
+                    imagem_cliente=$4,
+                    staff_id=$5
+                WHERE id=$6 AND guild_id=$7
+                """,
+                data["titulo_cliente"],
+                data["descricao_cliente"],
+                data["cor_cliente"],
+                data.get("imagem_cliente"),
+                data.get("staff_id"),
+                ticket_id,
+                guild_id,
+            )
 
-        data = await conn.fetchrow(
-            """
-            SELECT 
-                titulo_cliente, descricao_cliente, cor_cliente, imagem_cliente, staff_id
-            FROM tickets 
-            WHERE id=$1 AND guild_id=$2
-            """,
-            ticket_id,
-            interaction.guild.id
-        )
+    # ---------- THREAD ----------
 
-        await conn.close()
+    @staticmethod
+    async def create_thread(
+        interaction: discord.Interaction,
+        ticket_id: int,
+        user: discord.Member,
+    ):
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            data = await conn.fetchrow(
+                """
+                SELECT
+                    titulo_cliente, descricao_cliente,
+                    cor_cliente, imagem_cliente, staff_id
+                FROM tickets
+                WHERE id=$1 AND guild_id=$2
+                """,
+                ticket_id,
+                interaction.guild.id,
+            )
 
         if not data:
             return None, "Configuração não encontrada."
@@ -123,21 +136,17 @@ class TicketService:
         try:
             thread = await interaction.channel.create_thread(
                 name=f"ticket-{user.name}",
-                type=discord.ChannelType.private_thread
+                type=discord.ChannelType.private_thread,
             )
-
             await thread.add_user(user)
 
-            # 👮 adiciona staff (se tiver)
             if data["staff_id"]:
                 role = interaction.guild.get_role(data["staff_id"])
-
                 if role:
                     for member in role.members:
                         await thread.add_user(member)
 
-
-        except Exception as e:
+        except discord.HTTPException as e:
             return None, str(e)
 
         return thread, data
