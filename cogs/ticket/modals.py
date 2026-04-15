@@ -42,7 +42,7 @@ class EditPanelModal(discord.ui.Modal, title="Editar Painel"):
         self.data.update({
             "titulo": self.titulo.value,
             "descricao": self.descricao.value,
-            "cor": int(self.cor.value, 0),   # int(..., 0) aceita tanto "255" quanto "0xFF"
+            "cor": int(self.cor.value, 0),
             "imagem": self.imagem.value or None,
         })
 
@@ -68,7 +68,7 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
 
         self.staff = discord.ui.TextInput(
             label="Cargo Staff",
-            placeholder="@Staff ou ID do cargo",
+            placeholder="Nome do cargo (ex: adm) ou ID numérico",
             required=False,
             default=str(data.get("staff_id") or ""),
         )
@@ -99,16 +99,32 @@ class EditTopicModal(discord.ui.Modal, title="Editar Tópico do Ticket"):
 
     async def on_submit(self, interaction: discord.Interaction):
         staff_id = None
-        if self.staff.value:
-            match = re.search(r"\d+", self.staff.value)
-            if match:
-                staff_id = int(match.group())
+        valor = self.staff.value.strip().lstrip("@")
+
+        if valor:
+            if valor.isdigit():
+                # Usuário colou o ID numérico direto
+                staff_id = int(valor)
+            else:
+                # Busca o cargo pelo nome no servidor
+                role = discord.utils.find(
+                    lambda r: r.name.lower() == valor.lower(),
+                    interaction.guild.roles,
+                )
+                if role:
+                    staff_id = role.id
+                else:
+                    await interaction.response.send_message(
+                        f"❌ Cargo `{valor}` não encontrado no servidor. Verifique o nome e tente novamente.",
+                        ephemeral=True,
+                    )
+                    return
 
         self.data.update({
-            "titulo_cliente": self.titulo.value,        # ✅ chave correta
-            "descricao_cliente": self.descricao.value,  # ✅ chave correta
-            "cor_cliente": int(self.cor.value, 0),      # ✅ chave correta + aceita hex
-            "imagem_cliente": self.imagem.value or None, # ✅ chave correta
+            "titulo_cliente": self.titulo.value,
+            "descricao_cliente": self.descricao.value,
+            "cor_cliente": int(self.cor.value, 0),
+            "imagem_cliente": self.imagem.value or None,
             "staff_id": staff_id,
         })
 
