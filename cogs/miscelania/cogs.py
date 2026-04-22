@@ -9,8 +9,9 @@ from . import embeds
 class Mis(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    play = app_commands.Group(name="play", description= "jogos")
 
-    @app_commands.command(name="8ball", description="Faça uma pergunta para a bola mágica")
+    @play.command(name="8ball", description="Faça uma pergunta para a bola mágica")
     async def eightball(self, interaction: discord.Interaction, pergunta: str):
         
         itens = [

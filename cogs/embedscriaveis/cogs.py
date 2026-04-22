@@ -1,7 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import datetime
 from database import get_connection
 from . import embeds
 from . import services
